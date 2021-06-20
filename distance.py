@@ -10,10 +10,9 @@ class DistanceSensor:
         self.trig = trig
         self.echo = echo
 
-    def setup(self):
         #set GPIO direction (IN / OUT)
         GPIO.setup(self.trig, GPIO.OUT)
-        GPIO.setup(self.echo, GPIO.IN)
+        GPIO.setup(self.echo, GPIO.IN)        
 
     def distance(self):
         # set Trigger to HIGH
@@ -43,43 +42,51 @@ class DistanceSensor:
         return distance
 
 
-def sense_distance():
+def loop(sensor_1_fn = None):
     sensor_1 = DistanceSensor(13, 26)
-    sensor_1.setup()
+    distance_1 = sensor_1.distance
 
-    fast = 0.075
-    slow = 0.5
+    fast = 0.3
+    slow = 1
     refresh_rate = fast
 
-    time_last_active = time.time()
+    now = time.time
+    sleep = time.sleep
+    time_last_active = now()
     is_active = True
 
     while True:
-        dist = sensor_1.distance()
-        time_inactive = time.time() - time_last_active
+        dist_1 = distance_1()
+        time_inactive = now() - time_last_active
 
-        if dist > 100:
+        if dist_1 > 100:
             if time_inactive > 3:
                 refresh_rate = slow
                 is_active = False
         else:
             refresh_rate = fast
-            time_last_active = time.time()
+            time_last_active = now()
             is_active = True
         
         if is_active:
-            print ('%.2f cm' % dist)
+            # print ('%.2f cm' % dist_1)
+            sensor_1_fn(dist_1)
         
         else:
             print ('Inactive for %.2f seconds' % time_inactive)
 
-        time.sleep(refresh_rate)
+        sleep(refresh_rate)
 
+def sense_distance(sensor_1_fn = None):
+    try: loop(sensor_1_fn)
 
-if __name__ == '__main__':
-    try: sense_distance()
- 
-    # Reset by pressing CTRL + C
     except KeyboardInterrupt:
         print('Measurement stopped by User')    
         GPIO.cleanup()
+
+# if __name__ == '__main__':
+#     try: sense_distance()
+ 
+#     except KeyboardInterrupt:
+#         print('Measurement stopped by User')    
+#         GPIO.cleanup()
