@@ -36,9 +36,7 @@ def change_volume(e):
 
 def change_cutoff(e):
     global cutoff
-    percent = abs(128 - int(e)) / 128
-    cutoff = (percent * 60) + min_cutoff
-    print(cutoff)
+    cutoff = e * 60 + min_cutoff
 
 def print_distance(dist):
 	# print ('%.2f cm' % dist)
@@ -46,7 +44,7 @@ def print_distance(dist):
 
 def listen_to_sensors():
     # controller.handleInput(None, change_cutoff, change_pitch)
-    sense_distance(print_distance)
+    sense_distance(change_cutoff)
 
 def play():
     global amp
@@ -56,7 +54,7 @@ def play():
     while True:
         if cutoff > min_cutoff:
             sender.send_message('/trigger/prophet', [pitch, cutoff, 1])
-            # print('amp', amp)
+            print('cutoff', cutoff)
             # print('pitch', pitch)
             time.sleep(0.1)
 
@@ -67,4 +65,4 @@ t2 = Thread(target=play)
 
 # starting threads
 t1.start()
-# t2.start()
+t2.start()

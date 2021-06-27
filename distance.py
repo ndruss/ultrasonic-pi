@@ -43,19 +43,24 @@ class DistanceSensor:
 
 
 def loop(sensor_1_fn = None):
-    sensor_1 = DistanceSensor(5, 6)
-    sensor_2 = DistanceSensor(21, 26)
+    sensor_1 = DistanceSensor(5, 19)
+    sensor_2 = DistanceSensor(12, 20)
     distance_1 = sensor_1.distance
     distance_2 = sensor_2.distance
 
-    fast = 0.3
+    fast = 0.75
     slow = 1
     refresh_rate = fast
 
     now = time.time
     sleep = time.sleep
     time_last_active = now()
+    time_to_sleep = 6000
     is_active = True
+
+    def cm_to_percent(cm):
+        percent = (1 - dist_1 / 30) + 0.2
+        return min(1, max(percent, 0))
 
     while True:
         dist_1 = distance_1()
@@ -63,7 +68,7 @@ def loop(sensor_1_fn = None):
         time_inactive = now() - time_last_active
 
         if dist_1 > 100:
-            if time_inactive > 3:
+            if time_inactive > time_to_sleep:
                 refresh_rate = slow
                 is_active = False
         else:
@@ -72,9 +77,10 @@ def loop(sensor_1_fn = None):
             is_active = True
         
         if is_active:
-            print ('sensor 1: %.2f cm' % dist_1)
-            print ('sensor 2: %.2f cm' % dist_2)
-            # sensor_1_fn(dist_1)
+            # print ('%.2f' % dist_1, '|', '%.2f' % dist_2)
+            # print ('sensor 2: %.2f cm' % dist_2)
+            level_1 = cm_to_percent(dist_1)
+            sensor_1_fn(level_1)
         
         else:
             print ('Inactive for %.2f seconds' % time_inactive)
